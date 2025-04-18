@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FFC107;
+            --danger: #F44336;
+            --light: #F5F5F5;
+            --dark: #333;
+            --gray: #9E9E9E;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        header h1 {
+            text-align: center;
+        }
+        
+        .balance-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .balance-heading {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toggle-balance {
+            margin-left: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .balance-masked {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+        
+        .expense-form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .expenses-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        .expenses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .expense-list {
+            list-style: none;
+        }
+        
+        .expense-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        .expense-info {
+            flex-grow: 1;
+        }
+        
+        .expense-description {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .expense-details {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .expense-amount {
+            font-weight: bold;
+            color: var(--danger);
+            font-size: 1.2rem;
+            margin-right: 15px;
+        }
+        
+        .expense-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        
+        .btn-edit {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-right: 10px;
+            background-color: #e0e0e0;
+        }
+        
+        .no-expenses {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            text-align: right;
+            border-top: 1px solid #eee;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .expense-amount {
+                margin: 10px 0;
+            }
+            
+            .expense-actions {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Budget Tracker</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="balance-container">
+            <div class="balance-heading">
+                Current Balance
+                <button class="toggle-balance" id="toggleBalance">👁️</button>
+            </div>
+            <div class="balance-amount" id="balanceAmount">$0.00</div>
+            <div class="balance-masked hidden" id="balanceMasked">•••••</div>
+        </div>
+        
+        <div class="expense-form-container">
+            <h2>Add New Expense</h2>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" placeholder="What did you spend on?" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" min="0.01" step="0.01" placeholder="0.00" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select a category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Housing">Housing</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Health">Health</option>
+                        <option value="Education">Education</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" id="addExpenseBtn">Add Expense</button>
+            </form>
+        </div>
+        
+        <div class="expenses-container">
+            <div class="expenses-header">
+                <h2>Expense History</h2>
+            </div>
+            
+            <ul class="expense-list" id="expenseList">
+                <li class="no-expenses" id="noExpenses">No expenses recorded yet.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Edit Expense Modal -->
+    <div class="modal" id="editExpenseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Expense</h3>
+                <button class="close-modal" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editExpenseForm">
+                    <input type="hidden" id="editExpenseId">
+                    <div class="form-group">
+                        <label for="editDescription">Description</label>
+                        <input type="text" id="editDescription" placeholder="What did you spend on?" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editAmount">Amount ($)</label>
+                        <input type="number" id="editAmount" min="0.01" step="0.01" placeholder="0.00" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <select id="editCategory" required>
+                            <option value="">Select a category</option>
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Housing">Housing</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Health">Health</option>
+                            <option value="Education">Education</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editDate">Date</label>
+                        <input type="date" id="editDate" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize current date in the form
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+            
+            // Initialize expenses array from localStorage or empty array
+            let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            let balance = parseFloat(localStorage.getItem('balance')) || 0;
+            
+            // DOM Elements
+            const expenseForm = document.getElementById('expenseForm');
+            const expenseList = document.getElementById('expenseList');
+            const noExpensesMsg = document.getElementById('noExpenses');
+            const balanceAmount = document.getElementById('balanceAmount');
+            const balanceMasked = document.getElementById('balanceMasked');
+            const toggleBalance = document.getElementById('toggleBalance');
+            const editExpenseModal = document.getElementById('editExpenseModal');
+            const closeEditModal = document.getElementById('closeEditModal');
+            const editExpenseForm = document.getElementById('editExpenseForm');
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            
+            // Initialize UI
+            updateUI();
+            
+            // Event Listeners
+            expenseForm.addEventListener('submit', addExpense);
+            toggleBalance.addEventListener('click', toggleBalanceDisplay);
+            closeEditModal.addEventListener('click', closeModal);
+            saveEditBtn.addEventListener('click', saveEditedExpense);
+            
+            // Functions
+            function addExpense(e) {
+                e.preventDefault();
+                
+                const description = document.getElementById('description').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const category = document.getElementById('category').value;
+                const date = document.getElementById('date').value;
+                
+                const expense = {
+                    id: Date.now(),
+                    description,
+                    amount,
+                    category,
+                    date
+                };
+                
+                expenses.push(expense);
+                balance -= amount;
+                
+                saveData();
+                updateUI();
+                expenseForm.reset();
+                document.getElementById('date').value = today;
+            }
+            
+            function updateUI() {
+                // Update balance
+                balanceAmount.textContent = `$${balance.toFixed(2)}`;
+                
+                // Update expense list
+                if (expenses.length === 0) {
+                    noExpensesMsg.classList.remove('hidden');
+                } else {
+                    noExpensesMsg.classList.add('hidden');
+                    
+                    // Clear existing list
+                    while (expenseList.children.length > 1) {
+                        expenseList.removeChild(expenseList.lastChild);
+                    }
+                    
+                    // Sort expenses by date (newest first)
+                    expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    // Add expenses to list
+                    expenses.forEach(expense => {
+                        const li = createExpenseListItem(expense);
+                        expenseList.appendChild(li);
+                    });
+                }
+            }
+            
+            function createExpenseListItem(expense) {
+                const li = document.createElement('li');
+                li.className = 'expense-item';
+                li.dataset.id = expense.id;
+                
+                const formattedDate = new Date(expense.date).toLocaleDateString();
+                
+                li.innerHTML = `
+                    <div class="expense-info">
+                        <div class="expense-description">${expense.description}</div>
+                        <div class="expense-details">
+                            <span class="category-badge">${expense.category}</span>
+                            ${formattedDate}
+                        </div>
+                    </div>
+                    <div class="expense-amount">-$${expense.amount.toFixed(2)}</div>
+                    <div class="expense-actions">
+                        <button class="btn btn-small btn-edit" data-id="${expense.id}">Edit</button>
+                        <button class="btn btn-small btn-delete" data-id="${expense.id}">Delete</button>
+                    </div>
+                `;
+                
+                // Add event listeners for edit and delete buttons
+                li.querySelector('.btn-edit').addEventListener('click', () => editExpense(expense.id));
+                li.querySelector('.btn-delete').addEventListener('click', () => deleteExpense(expense.id));
+                
+                return li;
+            }
+            
+            function editExpense(id) {
+                const expense = expenses.find(exp => exp.id == id);
+                
+                if (expense) {
+                    // Fill the edit form with current expense data
+                    document.getElementById('editExpenseId').value = expense.id;
+                    document.getElementById('editDescription').value = expense.description;
+                    document.getElementById('editAmount').value = expense.amount;
+                    document.getElementById('editCategory').value = expense.category;
+                    document.getElementById('editDate').value = expense.date;
+                    
+                    // Show the modal
+                    editExpenseModal.classList.add('show');
+                }
+            }
+            
+            function saveEditedExpense() {
+                const id = document.getElementById('editExpenseId').value;
+                const description = document.getElementById('editDescription').value;
+                const newAmount = parseFloat(document.getElementById('editAmount').value);
+                const category = document.getElementById('editCategory').value;
+                const date = document.getElementById('editDate').value;
+                
+                const expense = expenses.find(exp => exp.id == id);
+                
+                if (expense) {
+                    // Adjust the balance (add back old amount, subtract new amount)
+                    balance += expense.amount;
+                    balance -= newAmount;
+                    
+                    // Update expense
+                    expense.description = description;
+                    expense.amount = newAmount;
+                    expense.category = category;
+                    expense.date = date;
+                    
+                    saveData();
+                    updateUI();
+                    closeModal();
+                }
+            }
+            
+            function deleteExpense(id) {
+                const expenseIndex = expenses.findIndex(exp => exp.id == id);
+                
+                if (expenseIndex !== -1) {
+                    // Add the expense amount back to balance
+                    balance += expenses[expenseIndex].amount;
+                    
+                    // Remove the expense
+                    expenses.splice(expenseIndex, 1);
+                    
+                    saveData();
+                    updateUI();
+                }
+            }
+            
+            function toggleBalanceDisplay() {
+                balanceAmount.classList.toggle('hidden');
+                balanceMasked.classList.toggle('hidden');
+                
+                // Change the eye icon
+                if (balanceAmount.classList.contains('hidden')) {
+                    toggleBalance.textContent = '👁️‍🗨️';
+                } else {
+                    toggleBalance.textContent = '👁️';
+                }
+            }
+            
+            function closeModal() {
+                editExpenseModal.classList.remove('show');
+            }
+            
+            function saveData() {
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                localStorage.setItem('balance', balance.toString());
+            }
+            
+            // Close modal if user clicks outside of it
+            window.addEventListener('click', function(event) {
+                if (event.target === editExpenseModal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
