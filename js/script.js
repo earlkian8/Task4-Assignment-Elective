@@ -46,7 +46,7 @@ function getExpenses(){
                         <td>${expense.description}</td>
                         <td><span class="category${expense.category}">${expense.category}</span></td>
                         <td>${expense.date}</td>
-                        <td>$${expense.amount}</td>
+                        <td>₱${expense.amount}</td>
                         <td>
                             <button class="btnEdit" data-id=${expense.expense_id}><i class="fas fa-edit"></i></button>
                             <button class="btnDelete" data-id=${expense.expense_id}><i class="fas fa-trash"></i></button>
