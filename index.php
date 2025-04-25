@@ -39,7 +39,7 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="content">
                     <tr>
                         <td>Grocery Shopping</td>
                         <td><span class="categoryFood">Food</span></td>
@@ -118,6 +118,44 @@
                     <input type="date" id="date" required autocomplete="off">
                 </div>
                 <button type="submit" class="btnSubmit">Add Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Expense Modal -->
+    <div id="editExpenseModal" class="modalContainer">
+        <div class="modalContent">
+            <span class="closeModal" id="editCloseModal">&times;</span>
+            <h2>Edit Expense</h2>
+            <form id="editExpenseForm">
+                <input type="hidden" name="editId" id="editId">
+                <div class="formGroup">
+                    <label for="editDescription">Description</label>
+                    <input type="text" id="editDescription" required autocomplete="off">
+                </div>
+                <div class="formGroup">
+                    <label for="editAmount">Amount ($)</label>
+                    <input type="number" id="editAmount" step="0.01" required autocomplete="off"> 
+                </div>
+                <div class="formGroup">
+                    <label for="editCategory">Category</label>
+                    <select id="editCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="Food">Food</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Housing">Housing</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="Healthcare">Healthcare</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="formGroup">
+                    <label for="editDate">Date</label>
+                    <input type="date" id="editDate" required autocomplete="off">
+                </div>
+                <button type="submit" class="btnSubmit">Edit Expense</button>
             </form>
         </div>
     </div>

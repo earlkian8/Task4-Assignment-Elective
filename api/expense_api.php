@@ -31,14 +31,14 @@
             $putData = file_get_contents("php://input");
             $data = json_decode($putData, true);
 
-            $updateExpense = $expense->updateExpense($data["saveExpenseId"], $data["saveDescription"], $data["saveAmount"], $data["saveCategory"], $data["saveDate"]);
+            $updateExpense = $expense->updateExpense($data["editId"], $data["editDescription"], $data["editAmount"], $data["editCategory"], $data["editDate"]);
             echo json_encode(["status" => "success", "updateExpense" => $updateExpense]);
             break;
         case 'DELETE':
             $delData = file_get_contents("php://input");
             $data = json_decode($delData, true);
 
-            $deleteExpense = $expense->deleteExpense($data["deleteExpenseId"]);
+            $deleteExpense = $expense->deleteExpense($data["deleteId"]);
             echo json_encode(["status" => "success", "deleteExpense" => $deleteExpense]);
             break;
     }
